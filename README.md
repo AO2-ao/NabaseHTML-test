@@ -1,0 +1,4 @@
+# NabaseHTML-test
+htmlをgree/unity-webViewのwebGLビルドで読み込ませるためのリポジトリ
+高専プロコン課題部門の作品でwebサイトを読み込む必要があったのでgithub pagesを利用するためのもの
+privateで使う方法を調べてない怠惰故の産物
