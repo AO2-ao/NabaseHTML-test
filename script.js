@@ -25,7 +25,7 @@ const Peer = window.Peer;
     'hashchange',
     () => (roomMode.textContent = getRoomModeByHash())
   );
-  navigator.mediaDevices
+  await navigator.mediaDevices
     .enumerateDevices()
     .then((devices) => {
       devices.forEach((device) => {
