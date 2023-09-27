@@ -75,7 +75,7 @@ const Peer = window.Peer;
     });
 
     // Render remote stream for new peer join in the room
-   /* room.on('stream', async stream => {
+   room.on('stream', async stream => {
       const newVideo = document.createElement('video');
       newVideo.srcObject = stream;
       newVideo.playsInline = true;
@@ -83,7 +83,7 @@ const Peer = window.Peer;
       newVideo.setAttribute('data-peer-id', stream.peerId);
       remoteVideos.append(newVideo);
       await newVideo.play().catch(console.error);
-    });*/
+    });
 
     room.on('data', ({ data, src }) => {
       // Show a message sent to the room and who sent
