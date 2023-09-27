@@ -25,7 +25,7 @@ const Peer = window.Peer;
     'hashchange',
     () => (roomMode.textContent = getRoomModeByHash())
   );
-  unityInstance.SendMessage('Button', 'DebugCall');
+ 
   const localStream = await navigator.mediaDevices
     .getUserMedia({
       audio: true,
