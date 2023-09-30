@@ -8,8 +8,8 @@
     key:   "f1b2a635-fca4-4150-8104-d54dfeaec4bd",
     debug: 3,
   });
-  await window.console("test tex");
-  await window.console(peer.peerId);
+  console.log("test tex");
+  console.log(peer.peerId);
   meta.innerText = `
     UA: ${navigator.userAgent}
     SDK: ${sdkSrc ? sdkSrc.src : 'unknown'}
