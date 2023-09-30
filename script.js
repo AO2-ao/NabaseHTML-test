@@ -9,7 +9,7 @@
     debug: 3,
   });
   console.log("test tex");
-  console.log(peer.peerId);
+  console.log(peer.id);
   meta.innerText = `
     UA: ${navigator.userAgent}
     SDK: ${sdkSrc ? sdkSrc.src : 'unknown'}
