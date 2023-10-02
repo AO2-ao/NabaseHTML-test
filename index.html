@@ -7,7 +7,12 @@
     <link rel="stylesheet" href="./style.css">
   </head>
   <body>
-  <video id="js-local-stream"></video>
+    <div>
+      <video id="js-local-video"></video>
+      <button id="js-join-trigger">Join</button>
+    </div>
+    <div class="remote-streams" id="js-remote-streams"></div>
+    
   <p class="meta" id="js-meta"></p>
   
   <script src="//cdn.webrtc.ecl.ntt.com/skyway-4.4.5.js"></script>
