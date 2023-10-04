@@ -1,0 +1,8 @@
+defaults:
+  # 他の設定...
+  - scope:
+      path: ""
+      type: "config"
+    values:
+      http_headers:
+        Access-Control-Allow-Origin: "*"
