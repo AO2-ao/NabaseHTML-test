@@ -50,11 +50,13 @@ const Peer = window.Peer;
   joinTrigger.addEventListener('click', () => { StartRoom(); });
     // Note that you need to ensure the peer has connected to signaling server
     // before using methods of peer instance.
-  function StartRoom(){
+  async function StartRoom(){
     if (!peer.open) {
+      console.error("peerがありません");
       return;
     }
 
+    console.log("StartRoom呼び出された");
     const room = peer.joinRoom("hoge", {
       mode: 'sfu',
       stream: localStream,
@@ -79,9 +81,11 @@ const Peer = window.Peer;
       audioTrackMap[id]=stream.getAudioTracks()[0];
 
       const newVideoTrack= videoTrackMap[id];
+      const newAudioTrack=audioTrackMap[id];
       const newStream=new MediaStream();
       if(newVideoTrack){
         newStream.addTrack(newVideoTrack);
+        newStream.addTrack(newAudioTrack);
       }else{
         console.log("ビデオトラックが見つかりません");
       }
@@ -137,3 +141,7 @@ const Peer = window.Peer;
 
   peer.on('error', console.error);
 })();
+
+function test(){
+  console.log("test viewew hogegeo");
+}
