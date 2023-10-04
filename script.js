@@ -47,7 +47,7 @@ const Peer = window.Peer;
   }));
   
   // Register join handler
-  joinTrigger.addEventListener('click', () => { test(); });
+  joinTrigger.addEventListener('click', () => { StartRoom(); });
     // Note that you need to ensure the peer has connected to signaling server
     // before using methods of peer instance.
   function StartRoom(){
