@@ -50,93 +50,99 @@ const Peer = window.Peer;
   joinTrigger.addEventListener('click', () => { StartRoom(); });
     // Note that you need to ensure the peer has connected to signaling server
     // before using methods of peer instance.
-  async function StartRoom(){
-    if (!peer.open) {
-      console.error("peerがありません");
-      return;
-    }
-
-    console.log("StartRoom呼び出された");
-    const room = peer.joinRoom("hoge", {
-      mode: 'sfu',
-      stream: localStream,
-    });
-
-    room.once('open', () => {
-      messages.textContent += '=== You joined ===\n';
-    });
-    room.on('peerJoin', peerId => {
-      messages.textContent += `=== ${peerId} joined ===\n`;
-    });
-
-    //各peerのvideoを格納する連想配列
-    const videoTrackMap={};
-    const audioTrackMap={};
-    // Render remote stream for new peer join in the room
-    room.on('stream', async stream => {
-      //videoトラックとaudioトラックを格納
-      const id=stream.peerId;
-      console.log(id);
-      videoTrackMap[id]=stream.getVideoTracks()[0];
-      audioTrackMap[id]=stream.getAudioTracks()[0];
-
-      const newVideoTrack= videoTrackMap[id];
-      const newAudioTrack=audioTrackMap[id];
-      const newStream=new MediaStream();
-      if(newVideoTrack){
-        newStream.addTrack(newVideoTrack);
-        newStream.addTrack(newAudioTrack);
-      }else{
-        console.log("ビデオトラックが見つかりません");
+window.Unity = {
+      callFromUnity:  function() {
+          // WebView内の関数の処理
+          if (!peer.open) {
+            console.error("peerがありません");
+            return;
+          }
+      
+          console.log("StartRoom呼び出された");
+          const room = peer.joinRoom("hoge", {
+            mode: 'sfu',
+            stream: localStream,
+          });
+      
+          room.once('open', () => {
+            messages.textContent += '=== You joined ===\n';
+          });
+          room.on('peerJoin', peerId => {
+            messages.textContent += `=== ${peerId} joined ===\n`;
+          });
+      
+          //各peerのvideoを格納する連想配列
+          const videoTrackMap={};
+          const audioTrackMap={};
+          // Render remote stream for new peer join in the room
+          room.on('stream', async stream => {
+            //videoトラックとaudioトラックを格納
+            const id=stream.peerId;
+            console.log(id);
+            videoTrackMap[id]=stream.getVideoTracks()[0];
+            audioTrackMap[id]=stream.getAudioTracks()[0];
+      
+            const newVideoTrack= videoTrackMap[id];
+            const newAudioTrack=audioTrackMap[id];
+            const newStream=new MediaStream();
+            if(newVideoTrack){
+              newStream.addTrack(newVideoTrack);
+              newStream.addTrack(newAudioTrack);
+            }else{
+              console.log("ビデオトラックが見つかりません");
+            }
+      
+            const newVideo = document.createElement('video');
+            newVideo.srcObject = newStream;
+            newVideo.playsInline = true;
+            // mark peerId to find it later at peerLeave event
+            newVideo.setAttribute('data-peer-id', stream.peerId);
+            remoteVideos.append(newVideo);
+            await newVideo.play().catch(console.error);
+          });
+      
+          room.on('data', ({ data, src }) => {
+            // Show a message sent to the room and who sent
+            messages.textContent += `${src}: ${data}\n`;
+          });
+      
+          // for closing room members
+          room.on('peerLeave', peerId => {
+            const remoteVideo = remoteVideos.querySelector(
+              `[data-peer-id="${peerId}"]`
+            );
+            remoteVideo.srcObject.getTracks().forEach(track => track.stop());
+            remoteVideo.srcObject = null;
+            remoteVideo.remove();
+      
+            messages.textContent += `=== ${peerId} left ===\n`;
+          });
+      
+          // for closing myself
+          room.once('close', () => {
+            sendTrigger.removeEventListener('click', onClickSend);
+            messages.textContent += '== You left ===\n';
+            Array.from(remoteVideos.children).forEach(remoteVideo => {
+              remoteVideo.srcObject.getTracks().forEach(track => track.stop());
+              remoteVideo.srcObject = null;
+              remoteVideo.remove();
+            });
+          });
+      
+          sendTrigger.addEventListener('click', onClickSend);
+          leaveTrigger.addEventListener('click', () => room.close(), { once: true });
+      
+          function onClickSend() {
+            // Send message to all of the peers in the room via websocket
+            room.send(localText.value);
+      
+            messages.textContent += `${peer.id}: ${localText.value}\n`;
+            localText.value = '';
+          }
       }
-
-      const newVideo = document.createElement('video');
-      newVideo.srcObject = newStream;
-      newVideo.playsInline = true;
-      // mark peerId to find it later at peerLeave event
-      newVideo.setAttribute('data-peer-id', stream.peerId);
-      remoteVideos.append(newVideo);
-      await newVideo.play().catch(console.error);
-    });
-
-    room.on('data', ({ data, src }) => {
-      // Show a message sent to the room and who sent
-      messages.textContent += `${src}: ${data}\n`;
-    });
-
-    // for closing room members
-    room.on('peerLeave', peerId => {
-      const remoteVideo = remoteVideos.querySelector(
-        `[data-peer-id="${peerId}"]`
-      );
-      remoteVideo.srcObject.getTracks().forEach(track => track.stop());
-      remoteVideo.srcObject = null;
-      remoteVideo.remove();
-
-      messages.textContent += `=== ${peerId} left ===\n`;
-    });
-
-    // for closing myself
-    room.once('close', () => {
-      sendTrigger.removeEventListener('click', onClickSend);
-      messages.textContent += '== You left ===\n';
-      Array.from(remoteVideos.children).forEach(remoteVideo => {
-        remoteVideo.srcObject.getTracks().forEach(track => track.stop());
-        remoteVideo.srcObject = null;
-        remoteVideo.remove();
-      });
-    });
-
-    sendTrigger.addEventListener('click', onClickSend);
-    leaveTrigger.addEventListener('click', () => room.close(), { once: true });
-
-    function onClickSend() {
-      // Send message to all of the peers in the room via websocket
-      room.send(localText.value);
-
-      messages.textContent += `${peer.id}: ${localText.value}\n`;
-      localText.value = '';
-    }
+  };
+  async function StartRoom(){
+    
   }
 
   peer.on('error', console.error);
