@@ -1,7 +1,7 @@
 const Peer = window.Peer;
 
 (async function main() {
-  const localVideo = document.getElementById('js-local-stream');
+  //const localVideo = document.getElementById('js-local-stream');
   const joinTrigger = document.getElementById('js-join-trigger');
   const leaveTrigger = document.getElementById('js-leave-trigger');
   const remoteVideos = document.getElementById('js-remote-streams');
@@ -25,16 +25,7 @@ const Peer = window.Peer;
     'hashchange',
     () => (roomMode.textContent = getRoomModeByHash())
   );
-  navigator.mediaDevices
-    .enumerateDevices()
-    .then((devices) => {
-      devices.forEach((device) => {
-        console.log(`${device.kind}: ${device.label} id = ${device.deviceId}`);
-      });
-    })
-    .catch((err) => {
-      console.error(`${err.name}: ${err.message}`);
-    });
+
   const localStream = await navigator.mediaDevices
     .getUserMedia({
       audio: true,
@@ -43,27 +34,29 @@ const Peer = window.Peer;
     .catch(console.error);
 
   // Render local stream
-  localVideo.muted = true;
+  /*localVideo.muted = true;
   localVideo.srcObject = localStream;
   localVideo.playsInline = true;
   await localVideo.play().catch(console.error);
+  */
 
   // eslint-disable-next-line require-atomic-updates
   const peer = (window.peer = new Peer({
-    key: "f1b2a635-fca4-4150-8104-d54dfeaec4bd",
+    key: 'f1b2a635-fca4-4150-8104-d54dfeaec4bd',
     debug: 3,
   }));
-
+  
   // Register join handler
-  joinTrigger.addEventListener('click', () => {
+  joinTrigger.addEventListener('click', () => { test(); });
     // Note that you need to ensure the peer has connected to signaling server
     // before using methods of peer instance.
+  function StartRoom(){
     if (!peer.open) {
       return;
     }
 
-    const room = peer.joinRoom(roomId.value, {
-      mode: getRoomModeByHash(),
+    const room = peer.joinRoom("hoge", {
+      mode: 'sfu',
       stream: localStream,
     });
 
@@ -74,10 +67,27 @@ const Peer = window.Peer;
       messages.textContent += `=== ${peerId} joined ===\n`;
     });
 
+    //各peerのvideoを格納する連想配列
+    const videoTrackMap={};
+    const audioTrackMap={};
     // Render remote stream for new peer join in the room
-   room.on('stream', async stream => {
+    room.on('stream', async stream => {
+      //videoトラックとaudioトラックを格納
+      const id=stream.peerId;
+      console.log(id);
+      videoTrackMap[id]=stream.getVideoTracks()[0];
+      audioTrackMap[id]=stream.getAudioTracks()[0];
+
+      const newVideoTrack= videoTrackMap[id];
+      const newStream=new MediaStream();
+      if(newVideoTrack){
+        newStream.addTrack(newVideoTrack);
+      }else{
+        console.log("ビデオトラックが見つかりません");
+      }
+
       const newVideo = document.createElement('video');
-      newVideo.srcObject = stream;
+      newVideo.srcObject = newStream;
       newVideo.playsInline = true;
       // mark peerId to find it later at peerLeave event
       newVideo.setAttribute('data-peer-id', stream.peerId);
@@ -123,7 +133,7 @@ const Peer = window.Peer;
       messages.textContent += `${peer.id}: ${localText.value}\n`;
       localText.value = '';
     }
-  });
+  }
 
   peer.on('error', console.error);
 })();
