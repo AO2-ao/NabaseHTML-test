@@ -45,17 +45,18 @@ const Peer = window.Peer;
     key: 'f1b2a635-fca4-4150-8104-d54dfeaec4bd',
     debug: 3,
   }));
-
+  
   // Register join handler
-  joinTrigger.addEventListener('click', () => {
+  joinTrigger.addEventListener('click', () => { test(); });
     // Note that you need to ensure the peer has connected to signaling server
     // before using methods of peer instance.
+  function StartRoom(){
     if (!peer.open) {
       return;
     }
 
-    const room = peer.joinRoom(roomId.value, {
-      mode: getRoomModeByHash(),
+    const room = peer.joinRoom("hoge", {
+      mode: 'sfu',
       stream: localStream,
     });
 
@@ -132,7 +133,7 @@ const Peer = window.Peer;
       messages.textContent += `${peer.id}: ${localText.value}\n`;
       localText.value = '';
     }
-  });
+  }
 
   peer.on('error', console.error);
 })();
