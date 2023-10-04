@@ -5,3 +5,5 @@ defaults:
     values:
       http_headers:
         Access-Control-Allow-Origin: "*"
+      https_headers:
+        Access-Control-Allow-Origin: "*"
