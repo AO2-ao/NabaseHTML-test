@@ -1,5 +1,4 @@
 defaults:
-  # 他の設定...
   - scope:
       path: ""
       type: "config"
